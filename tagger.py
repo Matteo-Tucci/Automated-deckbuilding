@@ -4,34 +4,35 @@ from pathlib import Path
 import re
 
 TAGS = {
-	"draw": r"(draw [A-Za-z1-9]+(?: [A-Za-z1-9]+)* card[s?])|(and put it into your hand)",
+	"draw": r"(draw [A-Za-z1-9]+(?: [A-Za-z1-9]+)* card(s?))|(and put it into (your|their) hand)",
 	#type and keyword to be done separately
-	"discard": r"(discard [A-Za-z1-9]+(?: [A-Za-z1-9]+)* card[s?])",
-	"ramp":r"(play [A-Za-z1-9]+(?: [A-Za-z1-9]+)* for free)|(pay \d ⬡ less)|(cost \d ⬡ less)" #includes cost reduction
-	"hero_recursion":
-	"nonhero_recursion":
-	"heal_synergy":
-	"adventure_synergy":
-	"toughness_synergy":
-	"color_synergy":
-	"discard_synergy":
-	"mill_synergy":
-	"vanilla": r"useless", #ricorda di riempire il campo, da DB non esiste nel json
-	"lore_gain":
-	"protection":
-	"untap":
-	"removal":
-	"deuff":
-	"group_hug": "each player",
-	"exile_trigger":
-	"buff_toughness":
-	"buff_attack":
-	"tap_enemy":
-	"burn":
-	"self_burn":
-	"movement":
-	"mill":
-	"healing":
+	"discard": r"(discard [A-Za-z1-9]+(?: [A-Za-z1-9]+)* card(s?))",
+	"ramp":r"(play [A-Za-z1-9]+(?: [A-Za-z1-9]+)* for free)|(pay \d ⬡ less)|(cost \d ⬡ less)", #includes cost reduction
+	"hero_recursion": r"return a character card from (your|their) discard to (your|their) hand",
+	"nonhero_recursion": r"return a(n?) (item|song|action|location) card from (your|their) discard to (your|their) hand",
+	"heal_synergy": r"(whenever you remove damage)|(whenever damage is removed)|(if you removed \d damage)",
+	"adventure_synergy": r"whenever [A-Za-z1-9]+(?: [A-Za-z1-9]+)* quests",
+	"color_synergy": r"Amber|Amethyst|Emerald|Ruby|Sapphire|Steel",
+	"powerup_synergy": r"(with a card under them)|(put [A-Za-z1-9]+(?: [A-Za-z1-9]+)* face down under one of your characters)",
+	"discard_synergy": r"(when you discard this card)|((when|whenever) you discard a card)|(if you discarded a card this turn)",
+	"mill_synergy": r"if [A-Za-z1-9]+(?: [A-Za-z1-9]+)* were put in your discard this turn",
+	"vanilla": r"useless", #ricorda di riempire il campo, da DB non esiste nel json, non volevo metterlo void o null
+	"lore_gain": r"(gain \d ◊)|(gain \d lore)", #vediamo se conviene tenerli separati
+	"lore_buff": r"(give [A-Za-z1-9]+(?: [A-Za-z1-9]+)* \+\d ◊)|(get(s?) \+\d ◊)",
+	"protection": r"(opponent can't ready more than one)|(opposing character(s?) can't challenge and must quest)",
+	"untap": r"(ready this character)|(ready chosen ((character(s?))|(item(s?))) of yours)",
+	"removal": r"(exert [A-Za-z1-9]+(?: [A-Za-z1-9]+)* opposing (character(s?)|item))|(banish [A-Za-z1-9]+(?: [A-Za-z1-9]+)* opposing (character(s?)|location|item(s?)))|(return [A-Za-z1-9]+(?: [A-Za-z1-9]+)* to their player's hand)|(deal \d? damage to)|(deal damage to [A-Za-z1-9]+(?: [A-Za-z1-9]+)* equal to)|(move up to \d damage from chosen (character|location) to chosen opposing (character|location))|(can't ready at the start of their next turn)",
+	"deuff": r"(opposing character(s?) get(s?) -\d ¤)",
+	"group_hug": r"each player",
+	"banish_trigger": r"when [A-Za-z1-9]+(?: [A-Za-z1-9]+)* (is|and) banished",
+	"buff_toughness": r"characters get \+\d ⛉",
+	"buff_attack": r"characters get \+\d ¤",
+	"tap_enemy": r"exert chosen opposing (character|item)",
+	"burn": r"(move up to \d damage from chosen (character|location) to chosen opposing (character|location))|(deal \d damage to each)",
+	"self_burn": r"(deal \d damage to each of your (other)? characters)|(enters play with \d damage)",
+	"movement": r"move [A-Za-z1-9]+(?: [A-Za-z1-9]+)* character(s?) [A-Za-z1-9]+(?: [A-Za-z1-9]+)* for free",
+	"mill": r"put the top \d cards of your deck into your discard",
+	"healing": r"(remove (up?) to \d damage from)|(move up to \d damage from)",
 	"wipe": r"banish (all|each|every)",
 }
 DB_PATH = Path("db") / "cards.db"
