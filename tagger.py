@@ -128,7 +128,13 @@ for row in rows:
         for tag in re.split(r"[\s,]+", raw_keyword_text.lower())
         if tag.strip()
     ]
-    combined_tags = list(dict.fromkeys([*matched.keys(), *keyword_tags]))
+    card_type = json.loads(row[1]).get("type")
+    type_tag = card_type.lower() if isinstance(card_type, str) else None
+    combined_tags = list(
+        dict.fromkeys(
+            [*matched.keys(), *keyword_tags, *([type_tag] if type_tag else [])]
+        )
+    )
     updated_rows.append((row[0], json.dumps(combined_tags, ensure_ascii=False)))
 
 cursor.executemany(
