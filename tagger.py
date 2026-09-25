@@ -10,27 +10,32 @@ from constants import TAGS, DB_PATH, JSON_PATH
 
 def flatten_effect_text(card: dict):
     abilities = card.get("abilities") or []
-    if not abilities:
-        return "useless", ""
-
     effects = []
     keywords = []
 
-    for ability in abilities:
-        effect = ability.get("fullText")
-        keyword = ability.get("keyword")
+    card_effect = card.get("fullText")
+    if card_effect is not None:
+        if isinstance(card_effect, list):
+            effects.extend(card_effect)
+        else:
+            effects.append(card_effect)
 
-        if effect is not None:
-            if isinstance(effect, list):
-                effects.extend(effect)
-            else:
-                effects.append(effect)
+    for ability in abilities:
+        keyword = ability.get("keyword")
 
         if keyword is not None:
             if isinstance(keyword, list):
                 keywords.extend(keyword)
             else:
                 keywords.append(keyword)
+
+        if card_effect is None:
+            effect = ability.get("fullText")
+            if effect is not None:
+                if isinstance(effect, list):
+                    effects.extend(effect)
+                else:
+                    effects.append(effect)
 
     if not (effects or keywords):
         raise ValueError(f'Card {card.get("fullName")} has no "fullText" or "keyword" ability text')
