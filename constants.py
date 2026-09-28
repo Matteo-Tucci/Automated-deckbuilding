@@ -2,6 +2,7 @@ from pathlib import Path
 
 WORDS = r"[\w' !?.-]+"
 TAGS = {
+    "tap_synergy": rf"(when|whenever) {WORDS} (becomes|is) exerted",
     "evasive": r"gains? evasive",
 	"draw": rf"(draw {WORDS} cards?)|(and put it into (your|their) hand)|(draw cards equal to)",
 	#type and keyword to be done separately

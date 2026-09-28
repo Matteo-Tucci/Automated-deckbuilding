@@ -151,6 +151,13 @@ cursor.executemany(
 	[(tags, cardid) for cardid, tags in updated_rows],
 )
 
+cursor.execute(
+    """
+	DELETE FROM cards
+    WHERE id=3032
+    """
+)
+
 print(f"all {len(rows)} cards tagged")
 conn.commit()
 conn.close()

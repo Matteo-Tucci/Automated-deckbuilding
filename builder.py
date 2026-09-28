@@ -5,7 +5,9 @@ import sqlite3
 from pathlib import Path
 from constants import TAGS, DB_PATH
 
-
+#####COLORS FOR THE DECK########
+color1 = "Amber"
+color2 = "Amethyst"
 
 def create_individual(data):
     leng = random.randint(60, 65)
@@ -17,6 +19,22 @@ def create_individual(data):
     individual = [card for card in core_cards for _ in range(4)]
     individual.extend(data[random.randrange(len(data))] for _ in range(leng - len(individual)))
     return individual
+
+def mutate(individual):
+    individual[random.randrange(len(individual))] = random.choice(data)
+
+def print_card_names(individual, rows):
+    card_names = {
+        row[0]: json.loads(row[3]).get("fullName")
+        for row in rows
+    }
+    card_counts = {}
+    for card in individual:
+        card_id = card[0]
+        card_counts[card_id] = card_counts.get(card_id, 0) + 1
+
+    for card_id, count in sorted(card_counts.items(), key=lambda item: card_names[item[0]]):
+        print(f"{count} {card_names[card_id]}")
 
 def fitness (individual, data):
     tags = dict.fromkeys(TAGS, 0)
@@ -43,12 +61,19 @@ def fitness (individual, data):
         "combo shift": 0,
         "duo shift": 0,
         "temporary shift": 0,
-        "potato shift": 0
+        "potato shift": 0,
+        "tap_synergy": 0,
+        "lore_ramp": 0,
+        "songs": 0,
+        "duo_shift": 0
     })
     fit = 0;
     avgcost = 0;
     inkpercentage = 0;
     for card in individual:
+        count = sum(other_card[0] == card[0] for other_card in individual)
+        if (count > 4):
+            return -100
         avgcost = avgcost + card[4]
         if card[3] is True:
             inkpercentage += 1
@@ -56,7 +81,7 @@ def fitness (individual, data):
         for tag in json.loads(card[2]):
             if tag in tags:
                 tags[tag] += 1
-        
+    
     avgcost = avgcost / len(individual)
     inkpercentage = (inkpercentage / len(individual) )*100
     if (inkpercentage >= 75):
@@ -129,8 +154,6 @@ def fitness (individual, data):
 
 conn = sqlite3.connect(DB_PATH)
 cursor = conn.cursor()
-color1 = "Amber"
-color2 = "Amethist"
 
 #guarda se serve anche il resto della carta
 cursor.execute(
@@ -146,18 +169,24 @@ conn.close()
 data = [] #we only get the right colors, to help mutation and crossover
 for item in rows:
     card = json.loads(item[3])
-    if (color1 in color2): #monocolored deck
+    if (color1 == color2): #monocolored deck
         if (item[1] in color1):
             data.append((item[0], item[1], item[2], card.get("inkwell"), card.get("cost"), card.get("type")))
     else: #double colored deck
-        if (color1 in item[1] and color2 in item[1]):
+        card_colors = set(item[1].split("-"))
+        if card_colors <= {color1, color2}:
             data.append((item[0], item[1], item[2], card.get("inkwell"), card.get("cost"), card.get("type")))
 
 ga = pyeasyga.GeneticAlgorithm(
     data,
-    populatuion_size=50,
+    population_size=50,
     generations=100,
     crossover_probability=0.2,
     mutation_probability=0.8,
 )
 ga.create_individual = create_individual
+ga.mutate_function = mutate
+ga.fitness_function = fitness
+
+ga.run()
+print_card_names(ga.best_individual()[1], rows)
