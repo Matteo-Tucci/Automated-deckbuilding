@@ -4,10 +4,11 @@ import random
 import sqlite3
 from pathlib import Path
 from constants import TAGS, DB_PATH
-
+#9-13
+#gioca coi parametri, cerca di faRLO CONVERGERE E eventualmente cambia la mutazione
 #####COLORS FOR THE DECK########
 color1 = "Amber"
-color2 = "Amethyst"
+color2 = "Ruby"
 
 def create_individual(data):
     leng = random.randint(60, 65)
@@ -70,6 +71,8 @@ def fitness (individual, data):
     fit = 0;
     avgcost = 0;
     inkpercentage = 0;
+    draw_removal_cards = 0
+    card_type_counts = {}
     for card in individual:
         count = sum(other_card[0] == card[0] for other_card in individual)
         if (count > 4):
@@ -78,10 +81,26 @@ def fitness (individual, data):
         if card[3] is True:
             inkpercentage += 1
 
-        for tag in json.loads(card[2]):
+        card_tags = json.loads(card[2])
+        card_type = (card[5] or "").lower()
+        card_type_counts[card_type] = card_type_counts.get(card_type, 0) + 1
+        if "draw" in card_tags or "removal" in card_tags:
+            draw_removal_cards += 1
+        for tag in card_tags:
             if tag in tags:
                 tags[tag] += 1
-    
+
+    if draw_removal_cards < 10:
+        fit -= 1
+    for synergy_tag, required_type in {
+        "singer": "song",
+        "song_synergy": "song",
+        "action_synergy": "action",
+        "item_synergy": "item",
+    }.items():
+        if card_type_counts.get(required_type, 0) < tags[synergy_tag]:
+            fit -= 0.5
+
     avgcost = avgcost / len(individual)
     inkpercentage = (inkpercentage / len(individual) )*100
     if (inkpercentage >= 75):
@@ -109,11 +128,13 @@ def fitness (individual, data):
         fit = fit + (tags["removal"] + tags["evasive"] + tags["bodyguard"])/10 - 2
     ###################
     ##m&m section##
-    ###################
+    ################### commentata perchè generica ed è solo quelle tre carte
+    """
     if (50 <= tags["character"] + tags["lore_gain"] + tags["ramp"] + tags["lore_ramp"] + tags["duo_shift"] >= 30):
         if (3.8 <=avgcost <= 4.3):
             fit +=1
         fit = fit + (tags["character"] + tags["lore_gain"] + tags["ramp"] + tags["lore_ramp"] + tags["duo_shift"])/10 - 2
+    """
     ###################
     ##midrange section##
     ###################
@@ -180,7 +201,7 @@ for item in rows:
 ga = pyeasyga.GeneticAlgorithm(
     data,
     population_size=50,
-    generations=100,
+    generations=800,
     crossover_probability=0.2,
     mutation_probability=0.8,
 )

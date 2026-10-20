@@ -15,6 +15,9 @@ TAGS = {
 	"color_synergy": r"\b(?:Amber|Amethyst|Emerald|Ruby|Sapphire|Steel)\b",
 	"powerup_synergy": rf"(with a card under them)|(put {WORDS} face down under one of your characters)",
 	"discard_synergy": r"(when you discard this card)|((when|whenever) you discard a card)|(if you discarded a card this turn)",
+	"song_synergy": r"(songs?)|(sings?)",
+    "action_synergy": r"actions?",
+    "item_synergy": r"items?",
 	"mill_synergy": rf"if {WORDS} were put in your discard this turn",
 	"vanilla": r"useless", #ricorda di riempire il campo, da DB non esiste nel json, non volevo metterlo void o null
 	"lore_gain": r"(gain \d+ ◊)|(gain \d+ lore)", #vediamo se conviene tenerli separati
@@ -34,6 +37,7 @@ TAGS = {
 	"mill": r"put the top \d+ cards of your deck into your discard",
 	"healing": r"(remove (?:up to )?\d+ damage from)|(move (:?up to )?\d+ damage from)",
 	"wipe": r"banish (all|each|every)",
+    "bounce": rf"(return (another)? chosen (characters?|items?|locations?) to their player's hand)|(return (another)? chosen (characters?|items?|locations?) of yours to your hand)",
     "stax": rf"(opponents? (:? {WORDS})* discards? (a|two|three) cards?)|(opponents? loses? \d (lore|◊))|(opponent discards (his or her|their) hand)|(opponent discards a card at random)",
 }
 DB_PATH = Path("db") / "cards.db"
