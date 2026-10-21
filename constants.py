@@ -7,7 +7,7 @@ TAGS = {
 	"draw": rf"(draw {WORDS} cards?)|(and put it into (your|their) hand)|(draw cards equal to)",
 	#type and keyword to be done separately
 	"discard": rf"(discard {WORDS} cards?)",
-	"ramp":rf"(play {WORDS} for free)|(pay \d ⬡ less)|(cost \d ⬡ less)|(into (your|their|his|its)(?: player(?:'s|s')?)? inkwell)", #includes cost reduction
+	"ramp":rf"(play {WORDS} for free)|(pay \d ⬡ less)|(cost \d ⬡ less)|(into (your|its)(?: player(?:'s|s')?)? inkwell)", #includes cost reduction
 	"hero_recursion": rf"return a character card {WORDS}? from (your|their) discard to (your|their) hand",
 	"nonhero_recursion": rf"return a(n?) (item|song|action|location) card {WORDS}? from (your|their) discard to (your|their) hand",
 	"heal_synergy": r"(whenever you remove damage)|(whenever damage is removed)|(if you removed \d damage)",
@@ -18,6 +18,7 @@ TAGS = {
 	"song_synergy": r"(songs?)|(sings?)",
     "action_synergy": r"actions?",
     "item_synergy": r"items?",
+    "location_synergy": r"locations?",
 	"mill_synergy": rf"if {WORDS} were put in your discard this turn",
 	"vanilla": r"useless", #ricorda di riempire il campo, da DB non esiste nel json, non volevo metterlo void o null
 	"lore_gain": r"(gain \d+ ◊)|(gain \d+ lore)", #vediamo se conviene tenerli separati

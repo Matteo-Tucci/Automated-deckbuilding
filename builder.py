@@ -20,9 +20,15 @@ def create_individual(data):
     individual = [card for card in core_cards for _ in range(4)]
     individual.extend(data[random.randrange(len(data))] for _ in range(leng - len(individual)))
     return individual
-
+#mutazione normale, uno alla volta
+#def mutate(individual):
+#    individual[random.randrange(len(individual))] = random.choice(data)
 def mutate(individual):
-    individual[random.randrange(len(individual))] = random.choice(data)
+    first_index, second_index = random.sample(range(len(individual)), 2)
+    card = random.choice(data)
+
+    individual[first_index] = card
+    individual[second_index] = card
 
 def print_card_names(individual, rows):
     card_names = {
@@ -97,6 +103,7 @@ def fitness (individual, data):
         "song_synergy": "song",
         "action_synergy": "action",
         "item_synergy": "item",
+        "location_synergy": "location",
     }.items():
         if card_type_counts.get(required_type, 0) < tags[synergy_tag]:
             fit -= 0.5
@@ -108,21 +115,21 @@ def fitness (individual, data):
     ###################
     ##damaged section##
     ###################
-    if (50 <= tags["evasive"] + tags["healing"] + tags["challenger"] >= 30):
+    if (30 <= tags["evasive"] + tags["healing"] + tags["challenger"] <= 50):
         if (2.5 <= avgcost <= 3):
             fit +=1
         fit = fit + (tags["evasive"] + tags["healing"] + tags["challenger"])/10 - 2
     ###################
     ##elinor section##
     ###################
-    if (50 <= tags["tap_synergy"] + tags["adventure_synergy"] + tags["bodyguard"] >= 30): #tap synery non esiste, fallo
+    if (30 <= tags["tap_synergy"] + tags["adventure_synergy"] + tags["bodyguard"] <= 50): #tap synery non esiste, fallo
         if (2 <= avgcost <= 2.5):
             fit +=1
         fit = fit + (tags["tap_synergy"] + tags["adventure_synergy"] + tags["bodyguard"])/10 - 2
     ###################
     ##detectives section##
     ###################
-    if (50 <= tags["removal"] + tags["evasive"] + tags["bodyguard"] >= 30):
+    if (30 <= tags["removal"] + tags["evasive"] + tags["bodyguard"] <= 50):
         if (2.5 <= avgcost <= 2.9):
             fit +=1
         fit = fit + (tags["removal"] + tags["evasive"] + tags["bodyguard"])/10 - 2
@@ -130,7 +137,7 @@ def fitness (individual, data):
     ##m&m section##
     ################### commentata perchè generica ed è solo quelle tre carte
     """
-    if (50 <= tags["character"] + tags["lore_gain"] + tags["ramp"] + tags["lore_ramp"] + tags["duo_shift"] >= 30):
+    if (30 <= tags["character"] + tags["lore_gain"] + tags["ramp"] + tags["lore_ramp"] + tags["duo_shift"] <= 50):
         if (3.8 <=avgcost <= 4.3):
             fit +=1
         fit = fit + (tags["character"] + tags["lore_gain"] + tags["ramp"] + tags["lore_ramp"] + tags["duo_shift"])/10 - 2
@@ -138,35 +145,35 @@ def fitness (individual, data):
     ###################
     ##midrange section##
     ###################
-    if (50 <= tags["removal"] + tags["debuff"] + tags["discard"] + tags["draw"] >= 30):
+    if (30 <= tags["removal"] + tags["debuff"] + tags["discard"] + tags["draw"] <= 50):
         if (3 <= avgcost <= 4):
             fit +=1
         fit = fit + (tags["removal"] + tags["debuff"] + tags["discard"] + tags["draw"])/10 - 2
     ###################
     ##retro section##
     ###################
-    if (50 <= tags["ramp"] + tags["character"] >= 30):
+    if (30 <= tags["ramp"] + tags["character"] <= 50):
         if (4 <= avgcost <= 5):
             fit +=1
         fit = fit + (tags["ramp"] + tags["character"])/10 - 2
     ###################
     ##songs section##
     ###################
-    if (50 <= tags["action"] + tags["lore_gain"] + tags["singer"] + tags["removal"] + tags["burn"] + tags["hero_recursion"] + tags["nonhero_recursion"] >= 30):
+    if (30 <= tags["action"] + tags["lore_gain"] + tags["singer"] + tags["removal"] + tags["burn"] + tags["hero_recursion"] + tags["nonhero_recursion"] <= 50):
         if (3.5 <= avgcost <= 4):
             fit +=1
         fit = fit + (tags["action"] + tags["lore_gain"] + tags["singer"] + tags["removal"] + tags["burn"] + tags["hero_recursion"] + tags["nonhero_recursion"])/10 - 2
     ###################
     ##actions section##
     ###################
-    if (50 <= tags["action"] + tags["songs"] + tags["draw"] + tags["item"] + tags["lore_gain"] - tags["character"] >= 30):
+    if (30 <= tags["action"] + tags["songs"] + tags["draw"] + tags["item"] + tags["lore_gain"] - tags["character"] <= 50):
         if (2.6 <= avgcost <= 3.4):
             fit +=1
         fit = fit + (tags["action"] + tags["songs"] + tags["draw"] + tags["item"] + tags["lore_gain"] - tags["character"])/10 - 2
     ###################
     ##boost section##
     ###################
-    if (50 <= tags["boost"] + tags["removal"] + tags["draw"] + tags["lore_gain"] >= 30):
+    if (30 <= tags["boost"] + tags["removal"] + tags["draw"] + tags["lore_gain"] <= 50):
         if (3 <= avgcost <= 3.5):
             fit +=1
         fit = fit + (tags["boost"] + tags["removal"] + tags["draw"] + tags["lore_gain"])/10 - 2
@@ -200,8 +207,8 @@ for item in rows:
 
 ga = pyeasyga.GeneticAlgorithm(
     data,
-    population_size=50,
-    generations=800,
+    population_size=100,
+    generations=900,
     crossover_probability=0.2,
     mutation_probability=0.8,
 )
