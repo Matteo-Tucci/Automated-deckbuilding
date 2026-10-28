@@ -3,7 +3,7 @@ from pathlib import Path
 WORDS = r"[\w' !?.-]+"
 TAGS = {
     "tap_synergy": rf"(when|whenever) {WORDS} (becomes|is) exerted",
-    "evasive": r"gains? evasive",
+    "give_evasive": r"gains? evasive",
 	"draw": rf"(draw {WORDS} cards?)|(and put it into (your|their) hand)|(draw cards equal to)",
 	#type and keyword to be done separately
 	"discard": rf"(discard {WORDS} cards?)",
@@ -15,7 +15,7 @@ TAGS = {
 	"color_synergy": r"\b(?:Amber|Amethyst|Emerald|Ruby|Sapphire|Steel)\b",
 	"powerup_synergy": rf"(with a card under them)|(put {WORDS} face down under one of your characters)",
 	"discard_synergy": r"(when you discard this card)|((when|whenever) you discard a card)|(if you discarded a card this turn)",
-	"song_synergy": r"(songs?)|(sings?)",
+	"song_synergy": r"\b(?:song|sing)\b",
     "action_synergy": r"actions?",
     "item_synergy": r"items?",
     "location_synergy": r"locations?",
@@ -25,7 +25,7 @@ TAGS = {
 	"lore_buff": rf"(give {WORDS} \+\d+ ◊)|(get(s?) \+\d+ ◊)",
 	"protection": r"(opponent can't ready more than one)|(opposing characters? can't challenge and must quest)",
 	"untap": rf"(ready this character)|(ready chosen ((characters?)|(items?)))|(ready your {WORDS} characters?)",
-	"removal": rf"(exert (?:(target|each|every|all) )?opposing (characters?|item))|(banish (?:(target|each|every|all) )?(opposing|chosen) (characters?|location|items?))|(put {WORDS} into (?:their|its) players?'s? inkwells?)|(return (?:chosen (characters?|items?|locations?) )?to their player's hand)|(deal \d+ damage to)|(deal damage to {WORDS} equal to)|(move up to \d+ damage from chosen (character|location) to chosen opposing (character|location))|(can't ready at the start of their next turn)",
+	"removal": rf"(exert (?:(target|each|every|all) )?opposing (characters?|item))|(banish (?:(target|each|every|all) )?(opposing|chosen) (characters?|location|items?))|(put {WORDS} into (?:their|its) players?'s? inkwells?)|(return (?:chosen (characters?|items?|locations?) )?to their player's hand)|(deal \d+ damage to)|(deal damage to {WORDS} equal to)|(move up to \d+ damage from chosen (character|location) to chosen opposing (character|location))|(move {WORDS} damage from this character to chosen opposing character)|(can't ready at the start of their next turn)",
 	"debuff": r"(opposing characters? gets? -\d+ ¤)",
 	"group_hug": r"each player",
 	"banish_trigger": rf"when {WORDS} (is|and) banished",

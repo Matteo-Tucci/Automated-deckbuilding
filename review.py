@@ -43,6 +43,8 @@ def fitness (individual):
     inkpercentage = 0;
     draw_removal_cards = 0
     card_type_counts = {}
+    full_names_by_base = {}
+    shifted_base_names = set()
     for card in individual:
         count = sum(other_card[0] == card[0] for other_card in individual)
         if (count > 4):
@@ -52,6 +54,12 @@ def fitness (individual):
             inkpercentage += 1
 
         card_tags = json.loads(card[2])
+        if len(card) > 6 and isinstance(card[6], str):
+            full_name = card[6].strip().casefold()
+            base_name = full_name.split(" - ", 1)[0]
+            full_names_by_base.setdefault(base_name, set()).add(full_name)
+            if "shift" in card_tags:
+                shifted_base_names.add(base_name)
         card_type = (card[5] or "").lower()
         card_type_counts[card_type] = card_type_counts.get(card_type, 0) + 1
         if "draw" in card_tags or "removal" in card_tags:
@@ -71,6 +79,9 @@ def fitness (individual):
     }.items():
         if card_type_counts.get(required_type, 0) < tags[synergy_tag]:
             fit -= 0.5
+    for base_name in shifted_base_names:
+        if len(full_names_by_base[base_name]) < 2:
+            fit -= 0.5
 
     avgcost = avgcost / len(individual)
     inkpercentage = (inkpercentage / len(individual) )*100
@@ -79,66 +90,77 @@ def fitness (individual):
     ###################
     ##damaged section##
     ###################
-    if (30 <= tags["evasive"] + tags["healing"] + tags["challenger"] <= 50):
-        if (2.5 <= avgcost <= 3):
+    if (40 <= tags["evasive"] + tags["give_evasive"] + tags["removal"] + tags["challenger"] + tags["tap_enemy"] + tags["lore_gain"] + tags["lore_buff"] + tags["healing"] <= 60):
+        if (2.5 <= avgcost <= 3.5):
             fit +=1
-        fit = fit + (tags["evasive"] + tags["healing"] + tags["challenger"])/10 - 2
+        fit = fit + (tags["evasive"] + tags["give_evasive"] + tags["removal"] + tags["challenger"] + tags["tap_enemy"] + tags["lore_gain"] + tags["lore_buff"] + tags["healing"])/10 - 2
+        print("damaged archetype")
     ###################
     ##elinor section##
     ###################
-    if (30 <= tags["tap_synergy"] + tags["adventure_synergy"] + tags["bodyguard"] <= 50): #tap synery non esiste, fallo
-        if (2 <= avgcost <= 2.5):
+    if (40 <= tags["tap_synergy"] + tags["adventure_synergy"] + tags["bodyguard"] + tags["lore_gain"] + tags["adventure_synergy"] + tags["protection"] + tags["character"]*0.8 <= 60):
+        if (2 <= avgcost <= 2.6):
             fit +=1
-        fit = fit + (tags["tap_synergy"] + tags["adventure_synergy"] + tags["bodyguard"])/10 - 2
+        fit = fit + (tags["tap_synergy"] + tags["adventure_synergy"] + tags["bodyguard"] + tags["lore_gain"] + tags["adventure_synergy"] + tags["protection"] + tags["character"]*0.8)/10 - 2
+        print("elinor archetype")
     ###################
     ##detectives section##
     ###################
-    if (30 <= tags["removal"] + tags["evasive"] + tags["bodyguard"] <= 50):
+    if (40 <= tags["removal"] + tags["evasive"] + tags["give_evasive"] + tags["bodyguard"] <= 60):
         if (2.5 <= avgcost <= 2.9):
             fit +=1
-        fit = fit + (tags["removal"] + tags["evasive"] + tags["bodyguard"])/10 - 2
+        fit = fit + (tags["removal"] + tags["evasive"] + tags["give_evasive"] + tags["bodyguard"])/10 - 2
+        print("detectives archetype")
+        """
     ###################
     ##m&m section##
     ###################
-    if (30 <= tags["character"] + tags["lore_gain"] + tags["ramp"] + tags["lore_ramp"] + tags["duo_shift"] <= 50):
+    if (40 <= tags["character"] + tags["lore_gain"] + tags["ramp"] + tags["lore_ramp"] + tags["duo_shift"] <= 60):
         if (3.8 <=avgcost <= 4.3):
             fit +=1
         fit = fit + (tags["character"] + tags["lore_gain"] + tags["ramp"] + tags["lore_ramp"] + tags["duo_shift"])/10 - 2
+        print("m&m archetype")
+        """
     ###################
     ##midrange section##
     ###################
-    if (30 <= tags["removal"] + tags["debuff"] + tags["discard"] + tags["draw"] <= 50):
+    if (40 <= tags["removal"] + tags["debuff"] + tags["discard"] + tags["draw"] + tags["challenger"] + tags["healing"] + tags["bounce"] <= 60):
         if (3 <= avgcost <= 4):
             fit +=1
-        fit = fit + (tags["removal"] + tags["debuff"] + tags["discard"] + tags["draw"])/10 - 2
+        fit = fit + (tags["removal"] + tags["debuff"] + tags["discard"] + tags["draw"] + tags["challenger"] + tags["healing"] + tags["bounce"])/10 - 2
+        print("midrange archetype")
     ###################
     ##retro section##
     ###################
-    if (30 <= tags["ramp"] + tags["character"] <= 50):
+    if (40 <= tags["ramp"]*0.8 + tags["character"]*0.9 + tags["item"] + tags["draw"] + tags["removal"] <= 60):
         if (4 <= avgcost <= 5):
             fit +=1
-        fit = fit + (tags["ramp"] + tags["character"])/10 - 2
+        fit = fit + (tags["ramp"]*0.8 + tags["character"]*0.9 + tags["item"] + tags["draw"] + tags["removal"])/10 - 2
+        print("retro archetype")
     ###################
     ##songs section##
     ###################
-    if (30 <= tags["action"] + tags["lore_gain"] + tags["singer"] + tags["removal"] + tags["burn"] + tags["hero_recursion"] + tags["nonhero_recursion"] <= 50):
+    if (40 <= tags["action"] + tags["lore_gain"] + tags["singer"] + tags["removal"] + tags["burn"] + tags["songs"] + tags["song_synergy"] + tags["draw"] <= 60):
         if (3.5 <= avgcost <= 4):
             fit +=1
-        fit = fit + (tags["action"] + tags["lore_gain"] + tags["singer"] + tags["removal"] + tags["burn"] + tags["hero_recursion"] + tags["nonhero_recursion"])/10 - 2
+        fit = fit + (tags["action"] + tags["lore_gain"] + tags["singer"] + tags["removal"] + tags["burn"] + tags["songs"] + tags["song_synergy"] + tags["draw"])/10 - 2
+        print("songs archetype")
     ###################
     ##actions section##
     ###################
-    if (30 <= tags["action"] + tags["songs"] + tags["draw"] + tags["item"] + tags["lore_gain"] - tags["character"] <= 50):
+    if (50 <= tags["action"]*0.5 + tags["song_synergy"] + tags["draw"] + tags["item"]*0.5 + tags["lore_gain"] + tags["removal"] - tags["character"]*2 <= 75):
         if (2.6 <= avgcost <= 3.4):
             fit +=1
-        fit = fit + (tags["action"] + tags["songs"] + tags["draw"] + tags["item"] + tags["lore_gain"] - tags["character"])/10 - 2
+        fit = fit + (tags["action"]*0.5 + tags["song_synergy"] + tags["draw"] + tags["item"]*0.5 + tags["lore_gain"] + tags["removal"] - tags["character"]*2)/10 - 2
+        print("actions archetype")
     ###################
     ##boost section##
     ###################
-    if (30 <= tags["boost"] + tags["removal"] + tags["draw"] + tags["lore_gain"] <= 50):
+    if (40 <= tags["boost"] + tags["removal"] + tags["draw"] + tags["lore_gain"] <= 60):
         if (3 <= avgcost <= 3.5):
             fit +=1
         fit = fit + (tags["boost"] + tags["removal"] + tags["draw"] + tags["lore_gain"])/10 - 2
+        print("boost archetype")
     return fit
 
 
@@ -206,6 +228,7 @@ def load_individual(deck_path, db_path=DB_PATH):
 				card.get("inkwell"),
 				card.get("cost"),
 				card.get("type"),
+                card.get("fullName"),
 			)
 			individual.extend([card_tuple] * quantity)
 
@@ -227,16 +250,21 @@ def card_difference(first_individual, second_individual):
 
 def main():
     parser = argparse.ArgumentParser(description="Create a builder-compatible individual.")
-    parser.add_argument("deck_file", type=Path, help="path to the deck-list text file")
+    parser.add_argument("first_deck_file", type=Path, help="path to the first deck-list text file")
+    parser.add_argument("second_deck_file", type=Path, help="path to the second deck-list text file")
     args = parser.parse_args()
 
     try:
-        individual = load_individual(args.deck_file)
+        first_individual = load_individual(args.first_deck_file)
+        second_individual = load_individual(args.second_deck_file)
     except (OSError, ValueError, sqlite3.Error) as error:
         parser.error(str(error))
 
-    print(f"Fitness: {fitness(individual)}")
-    print(f"Card difference: {card_difference(individual, individual)}")
+    print("Generated deck detected archetypes:")
+    print(f"Generated deck fitness: {fitness(first_individual)}")
+    print("Meta deck detected archetypes:")
+    print(f"Meta deck fitness: {fitness(second_individual)}")
+    print(f"Card difference: {card_difference(first_individual, second_individual)}")
 
 
 if __name__ == "__main__":
